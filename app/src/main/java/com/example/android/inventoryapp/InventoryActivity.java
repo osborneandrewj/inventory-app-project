@@ -1,15 +1,35 @@
 package com.example.android.inventoryapp;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
-public class InventoryActivity extends AppCompatActivity {
+import com.example.android.inventoryapp.data.InventoryContract;
+import com.example.android.inventoryapp.data.InventoryCursorAdapter;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+public class InventoryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    /** Used for log tags */
+    private static final String LOG_TAG = InventoryActivity.class.getSimpleName();
+    /** A unique ID used for the loader */
+    private static final int UNIQUE_ID_FOR_LOADER = 0;
+    /** The adapter used to display the inventory list */
+    private InventoryCursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,10 +42,24 @@ public class InventoryActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                insertData();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
             }
         });
+
+        // Find the ListView that will be used for the inventory data
+        ListView listView = (ListView)findViewById(R.id.list);
+
+        // TODO: Create an emptyView
+
+        // Now create an empty adapter that will be used to display the inventory table
+        // and set it to the listView
+        mCursorAdapter = new InventoryCursorAdapter(this, null);
+        listView.setAdapter(mCursorAdapter);
+
+        // Prepare the loader
+        getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
     }
 
     @Override
@@ -42,11 +76,98 @@ public class InventoryActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_insert_data:
+                insertData();
+                return true;
+            case R.id.action_delete_table:
+                deleteTable();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void insertData() {
+        // ***********************
+        // Generate a random number between 1 and 5
+        int randomNumber = 1 + (int)(Math.random() * ((5-1) + 1));
+        Log.v(LOG_TAG, "Random number: " + randomNumber);
+        Log.v(LOG_TAG, "Random number: " + randomNumber);
+        // ***********************
+        // Create a new ContentValues object
+        ContentValues values = new ContentValues();
+
+        switch (randomNumber) {
+            case 1:
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Andy");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "1");
+                break;
+            case 2:
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Jordana");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "2");
+                break;
+            case 3:
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Desiree");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "3");
+                break;
+            case 4:
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "James");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "4");
+                break;
+            default:
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Jacqueline");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "5");
+                break;
+        }
+        //values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Andy");
+        //values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "5");
+
+        // Defines a new Uri object that will receive the result of insertion
+        Uri mNewUri = getContentResolver().insert(
+                InventoryContract.InventoryEntry.CONTENT_URI, values);
+
+        Log.v(LOG_TAG, "New entry! " + mNewUri);
+    }
+
+    private void deleteTable() {
+        // Defines a new int that will receive the result of the deletion
+        int rowsDeleted = getContentResolver().delete(
+                InventoryContract.InventoryEntry.CONTENT_URI, null, null);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // Projection used to perform the query
+        String[] projection = {
+                InventoryContract.InventoryEntry._ID,
+                InventoryContract.InventoryEntry.COLUMN_NAME_NAME,
+                InventoryContract.InventoryEntry.COLUMN_NAME_PRICE};
+
+        return new CursorLoader(getApplicationContext(),
+                InventoryContract.InventoryEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        // Swap the new cursor in. Note: The framework will take care of closing
+        // the old cursor once we return
+        mCursorAdapter.swapCursor(data);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // This is called when the last cursor provided to onLoadFinished() is going to be
+        // closed. We need to make sure that we are no longer using it.
+        mCursorAdapter.swapCursor(null);
+
     }
 }

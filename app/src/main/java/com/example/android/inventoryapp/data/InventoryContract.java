@@ -54,8 +54,8 @@ public final class InventoryContract {
                 InventoryEntry._ID + " INTEGER PRIMARY KEY," +
                 InventoryEntry.COLUMN_NAME_NAME + " TEXT NOT NULL," +
                 InventoryEntry.COLUMN_NAME_IMAGE + " BLOB," +
-                InventoryEntry.COLUMN_NAME_PRICE + " REAL NOT NULL," +
-                InventoryEntry.COLUMN_NAME_STOCK + " INTEGER NOT NULL DEFAULT 0)";
+                InventoryEntry.COLUMN_NAME_PRICE + " TEXT NOT NULL," +
+                InventoryEntry.COLUMN_NAME_STOCK + " INTEGER DEFAULT 0)";
 
         /** Used to delete the table */
         public static final String SQL_DELETE_INVENTORY_TABLE =

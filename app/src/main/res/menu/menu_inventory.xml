@@ -7,4 +7,12 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_insert_data"
+        android:title="Insert Dummy data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_delete_table"
+        android:title="Delete table"
+        app:showAsAction="never" />
 </menu>
