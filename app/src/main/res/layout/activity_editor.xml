@@ -14,14 +14,11 @@
         android:orientation="horizontal">
 
         <TextView
+            style="@style/LabelStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="sans-serif-medium"
             android:paddingTop="10dp"
             android:text="Edit Item"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/colorAccent"
             tools:text="Item Name" />
 
         <LinearLayout
