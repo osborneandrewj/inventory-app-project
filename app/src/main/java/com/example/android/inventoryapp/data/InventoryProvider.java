@@ -158,7 +158,7 @@ public class InventoryProvider extends ContentProvider {
                 // Here the user has requested to delete a single row from
                 // the inventory table
                 selection = InventoryContract.InventoryEntry._ID + "=?";
-                // Extract the row ID out from this URI object
+                // Extract the row ID out from this URI object and set it to selectionArgs variable
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
                 return deleteItem(uri, selection, selectionArgs);
             default:

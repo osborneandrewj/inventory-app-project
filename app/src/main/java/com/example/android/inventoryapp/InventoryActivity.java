@@ -1,6 +1,8 @@
 package com.example.android.inventoryapp;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.InventoryContract;
@@ -58,8 +61,32 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         mCursorAdapter = new InventoryCursorAdapter(this, null);
         listView.setAdapter(mCursorAdapter);
 
+        // Set an OnClick listener to allow a user click to open the detail activity
+        // for each item
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long idOfItem) {
+                Intent intent = new Intent(InventoryActivity.this, EditorActivity.class);
+                // idOfItem is the item's _id value. Build the URI from this number
+                Uri currentItemUri = ContentUris.withAppendedId(
+                        InventoryContract.InventoryEntry.CONTENT_URI,
+                        idOfItem);
+                // set this to the data the intent will operate on
+                intent.setData(currentItemUri);
+                startActivity(intent);
+            }
+        });
+
         // Prepare the loader
         getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
+
+        Snackbar.make(listView, "Welcome to my app!", Snackbar.LENGTH_LONG)
+                .setAction("Go!", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //nothing
+                    }
+                }).show();
     }
 
     @Override
@@ -95,7 +122,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         // Generate a random number between 1 and 5
         int randomNumber = 1 + (int)(Math.random() * ((5-1) + 1));
         Log.v(LOG_TAG, "Random number: " + randomNumber);
-        Log.v(LOG_TAG, "Random number: " + randomNumber);
         // ***********************
         // Create a new ContentValues object
         ContentValues values = new ContentValues();
@@ -103,23 +129,28 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         switch (randomNumber) {
             case 1:
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Andy");
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "1");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 150);
                 break;
             case 2:
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Jordana");
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "2");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 250);
                 break;
             case 3:
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Desiree");
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "3");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 350);
                 break;
             case 4:
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "James");
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "4");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 45);
                 break;
             default:
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Jacqueline");
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "5");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 550);
                 break;
         }
         //values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Andy");
@@ -144,7 +175,8 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         String[] projection = {
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_NAME_NAME,
-                InventoryContract.InventoryEntry.COLUMN_NAME_PRICE};
+                InventoryContract.InventoryEntry.COLUMN_NAME_PRICE,
+                InventoryContract.InventoryEntry.COLUMN_NAME_STOCK};
 
         return new CursorLoader(getApplicationContext(),
                 InventoryContract.InventoryEntry.CONTENT_URI,

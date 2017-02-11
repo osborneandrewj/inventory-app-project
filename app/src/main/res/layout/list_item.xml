@@ -56,9 +56,11 @@
         android:gravity="end">
 
         <Button
+            android:id="@+id/button_sell"
             android:layout_width="75dp"
             android:layout_height="match_parent"
-            android:text="sell"/>
+            android:text="sell"
+            android:focusable="false"/>
     </LinearLayout>
 
 
