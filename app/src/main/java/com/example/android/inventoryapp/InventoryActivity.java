@@ -41,13 +41,15 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Create a floating action button (fab) that the user clicks
+        // to create a new inventory item
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                insertData();
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
+                // Launch the EditorActivity when user clicks the fab
+                Intent intent = new Intent(InventoryActivity.this, EditorActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -61,7 +63,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         mCursorAdapter = new InventoryCursorAdapter(this, null);
         listView.setAdapter(mCursorAdapter);
 
-        // Set an OnClick listener to allow a user click to open the detail activity
+        // Set an OnClick listener to allow a user click to open the detail/editor activity
         // for each item
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -153,8 +155,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 550);
                 break;
         }
-        //values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Andy");
-        //values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, "5");
 
         // Defines a new Uri object that will receive the result of insertion
         Uri mNewUri = getContentResolver().insert(

@@ -169,7 +169,17 @@ public class InventoryProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+        // Get a database reference
+        SQLiteDatabase database = mInventoryDbHelper.getWritableDatabase();
+
+        int rowsAffected = database.update(InventoryContract.InventoryEntry.TABLE_NAME,
+                contentValues,
+                InventoryContract.InventoryEntry._ID + "=?",
+                new String[] {String.valueOf(ContentUris.parseId(uri))});
+
+        // Notify listeners that rows have been changed
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsAffected;
     }
 
     private Uri insertItem(Uri uri, ContentValues values) {

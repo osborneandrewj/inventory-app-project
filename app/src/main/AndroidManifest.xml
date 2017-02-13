@@ -23,7 +23,10 @@
             android:name=".data.InventoryProvider"
             android:authorities="com.example.android.inventoryapp" />
 
-        <activity android:name=".EditorActivity"></activity>
+        <activity android:name=".EditorActivity"
+            android:parentActivityName=".InventoryActivity">
+
+        </activity>
     </application>
 
 </manifest>

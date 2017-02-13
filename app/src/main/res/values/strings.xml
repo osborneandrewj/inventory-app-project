@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Inventory App</string>
     <string name="action_settings">Settings</string>
+
+    <!--Error messages-->
+    <string name="error_stock_level">Stock level cannot be lower than 0!</string>
+    <string name="error_editing_item">Error editing item!</string>
+    
 </resources>

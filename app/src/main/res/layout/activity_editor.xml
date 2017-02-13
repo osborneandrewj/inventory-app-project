@@ -68,26 +68,34 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:layout_weight="2"
             android:orientation="horizontal">
 
             <Button
-                android:layout_width="80dp"
+                android:id="@+id/button_decrease"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="80dp"
+                android:layout_gravity="start"
                 android:text="-"
                 android:textAppearance="?android:textAppearanceLarge" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/stock_level_text"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
+                android:gravity="center"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp"
                 android:text="0"
                 android:textAppearance="?android:textAppearanceLarge" />
 
             <Button
-                android:layout_width="80dp"
+                android:id="@+id/button_increase"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="80dp"
                 android:text="+"
                 android:textAppearance="?android:textAppearanceLarge" />
@@ -95,6 +103,33 @@
         </LinearLayout>
 
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="32dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/LabelStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:paddingTop="10dp"
+            android:text="Supplier"
+            />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:text="Order"/>
+
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
