@@ -1,12 +1,14 @@
 package com.example.android.inventoryapp;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -137,8 +139,7 @@ public class EditorActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             // User selected the "delete" button
             case R.id.action_delete:
-                getContentResolver().delete(mCurrentItemUri, null, null);
-                finish();
+                showDeleteConfirmationDialog();
                 return true;
             // User selected the "save" button
             case R.id.action_save:
@@ -150,6 +151,37 @@ public class EditorActivity extends AppCompatActivity implements
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Show the delete confirmation dialog box
+     */
+    private void showDeleteConfirmationDialog() {
+        // Instantiate the dialog builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Chain together setter methods to set the dialog characteristics
+        builder.setMessage(R.string.delete_button_message);
+        builder.setPositiveButton(R.string.delete_button_positive,
+                // User clicked the "delete" button. Delete the item
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        deleteItem();
+                        finish();
+                    }
+                });
+        builder.setNegativeButton(R.string.delete_button_negative,
+                // User clicked cancel. Do nothing and return to activity
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                       // Do nothing
+                    }
+                });
+        // Create and show the dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     /**
@@ -236,6 +268,22 @@ public class EditorActivity extends AppCompatActivity implements
         }
         // If all checks out, return true
         return true;
+    }
+
+    /**
+     * Delete a row (item) from the database
+     */
+    private void deleteItem(){
+
+        long rowsAffected = getContentResolver().delete(mCurrentItemUri, null, null);
+
+        if (rowsAffected != -1) {
+            // Item deleted successfully
+            Toast.makeText(this, R.string.item_deleted_success, Toast.LENGTH_SHORT).show();
+        } else {
+            // Something went wrong with the deletion
+            Toast.makeText(this, R.string.error_item_deleted, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
