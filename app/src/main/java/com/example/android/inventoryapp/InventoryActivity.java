@@ -56,7 +56,9 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         // Find the ListView that will be used for the inventory data
         ListView listView = (ListView)findViewById(R.id.list);
 
-        // TODO: Create an emptyView
+        // Create an empty view
+        View emptyView = findViewById(R.id.empty_view);
+        listView.setEmptyView(emptyView);
 
         // Now create an empty adapter that will be used to display the inventory table
         // and set it to the listView
@@ -82,6 +84,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         // Prepare the loader
         getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
 
+        // TODO: Delete this
         Snackbar.make(listView, "Welcome to my app!", Snackbar.LENGTH_LONG)
                 .setAction("Go!", new View.OnClickListener() {
                     @Override
@@ -120,7 +123,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
     }
 
     private void insertData() {
-        // ***********************
+        // *************************************delete this section*********************************
         // Generate a random number between 1 and 5
         int randomNumber = 1 + (int)(Math.random() * ((5-1) + 1));
         Log.v(LOG_TAG, "Random number: " + randomNumber);
@@ -130,37 +133,36 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
 
         switch (randomNumber) {
             case 1:
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Andy");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Peaches");
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 150);
                 break;
             case 2:
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Jordana");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Figs");
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 250);
                 break;
             case 3:
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Desiree");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Oranges");
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 350);
                 break;
             case 4:
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "James");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Bananas");
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 45);
                 break;
             default:
-                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Jacqueline");
+                values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, "Apples");
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, 1);
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 550);
                 break;
         }
+        //******************************************************************************************
 
         // Defines a new Uri object that will receive the result of insertion
         Uri mNewUri = getContentResolver().insert(
                 InventoryContract.InventoryEntry.CONTENT_URI, values);
-
-        Log.v(LOG_TAG, "New entry! " + mNewUri);
     }
 
     private void deleteTable() {

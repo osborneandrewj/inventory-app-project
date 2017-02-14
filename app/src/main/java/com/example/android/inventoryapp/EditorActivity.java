@@ -1,6 +1,7 @@
 package com.example.android.inventoryapp;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
@@ -8,6 +9,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +31,7 @@ public class EditorActivity extends AppCompatActivity implements
     /** Used to set the item price */
     private static final int PRICE_CONVERSION_FACTOR = 100;
 
-    /** Contains URI information about the current item */
+    /** URI information about the current item */
     private Uri mCurrentItemUri;
 
     /** These are the EditText fields used to edit the item */
@@ -48,9 +50,9 @@ public class EditorActivity extends AppCompatActivity implements
         // Set the title for this activity based on whether or not the user
         // is creating an inventory item or editing an existing one
         if (mCurrentItemUri == null) {
-            setTitle("Add Inventory Item");
+            setTitle(R.string.title_editor_add);
         } else {
-            setTitle("Edit Item");
+            setTitle(R.string.title_editor_edit);
             getSupportLoaderManager().initLoader(0, null, this);
         }
 
@@ -64,7 +66,7 @@ public class EditorActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 int stockLevel = Integer.parseInt(mStockLevelText.getText().toString());
-                stockLevel = stockLevel+1;
+                stockLevel = stockLevel + 1;
                 mStockLevelText.setText(Integer.toString(stockLevel));
             }
         });
@@ -86,6 +88,26 @@ public class EditorActivity extends AppCompatActivity implements
             }
         });
 
+        // Button to create an order for more product
+        // This should be handled by an email client
+        Button orderButton = (Button)findViewById(R.id.button_order);
+        orderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:")); // only email apps should handle this intent
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[] {
+                        // TODO: enter a valid email address for supplier
+                        "supplier@example.com"});
+                intent.putExtra(Intent.EXTRA_SUBJECT,
+                        R.string.email_subject);
+                intent.putExtra(Intent.EXTRA_TEXT,
+                        R.string.email_body);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override
@@ -115,12 +137,15 @@ public class EditorActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             // User selected the "delete" button
             case R.id.action_delete:
-                // something
+                getContentResolver().delete(mCurrentItemUri, null, null);
+                finish();
                 return true;
             // User selected the "save" button
             case R.id.action_save:
-                saveItem();
-                finish();
+                if (validateData()) {
+                    saveItem();
+                    finish();
+                }
                 return true;
         }
 
@@ -160,15 +185,16 @@ public class EditorActivity extends AppCompatActivity implements
 
         String toastMessage;
         if (rowsAffected == 0) {
-            toastMessage = "Error editing item";
+            toastMessage = getString(R.string.error_saving_item);
         } else {
-            toastMessage = "Item saved";
+            toastMessage = getString(R.string.item_saved_success);
         }
         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
 
     /**
      * Convert the currency-formatted price EditText to a database-ready int
+     *
      * @return the price as an int
      */
     private int convertPriceToInt() {
@@ -176,15 +202,40 @@ public class EditorActivity extends AppCompatActivity implements
         // Get the value from the EditText. This will have a "$#.##" format
         // eg. "$1.05
         String priceString = mPriceEditText.getText().toString();
-        // Remove the "$" from the String
-        priceString = priceString.replace("$", "");
-        // Convert the string into a double and multiply by 100 to convert from dollars to cents
-        Double priceDouble = Double.parseDouble(priceString) * PRICE_CONVERSION_FACTOR;
-        // Use the Double class to convert this number into an int
-        int priceInt = priceDouble.intValue();
+        if (!TextUtils.isEmpty(priceString)) {
+            // Remove the "$" from the String
+            priceString = priceString.replace("$", "");
+            // Convert the string into a double and multiply by 100 to convert from dollars to cents
+            Double priceDouble = Double.parseDouble(priceString) * PRICE_CONVERSION_FACTOR;
+            // Use the Double class to convert this number into an int
+            int priceInt = priceDouble.intValue();
+            return priceInt;
+        } else {
+            return 0;
+        }
+    }
 
-        Log.v("Editor", "price: " + priceInt);
-        return priceInt;
+    /**
+     * Check the user input fields to ensure that they are not blank. This method is usually called
+     * before the data is saved.
+     *
+     * @return true is the data is ready for database entry
+     */
+    private boolean validateData() {
+        // Validate the data to ensure no blanks are left
+        if (TextUtils.isEmpty(mNameEditText.getText())) {
+            Toast.makeText(getApplicationContext(), R.string.error_no_name,
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (TextUtils.isEmpty(mPriceEditText.getText())) {
+            Toast.makeText(getApplicationContext(), R.string.error_no_name,
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        // If all checks out, return true
+        return true;
     }
 
     @Override
