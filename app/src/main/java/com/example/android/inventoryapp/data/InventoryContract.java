@@ -53,7 +53,7 @@ public final class InventoryContract {
                 InventoryEntry.TABLE_NAME + " (" +
                 InventoryEntry._ID + " INTEGER PRIMARY KEY," +
                 InventoryEntry.COLUMN_NAME_NAME + " TEXT NOT NULL," +
-                InventoryEntry.COLUMN_NAME_IMAGE + " BLOB," +
+                InventoryEntry.COLUMN_NAME_IMAGE + " TEXT," +
                 InventoryEntry.COLUMN_NAME_PRICE + " INTEGER DEFAULT 0," +
                 InventoryEntry.COLUMN_NAME_STOCK + " INTEGER DEFAULT 0)";
 

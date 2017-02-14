@@ -36,6 +36,9 @@ public class EditorActivity extends AppCompatActivity implements
     /** URI information about the current item */
     private Uri mCurrentItemUri;
 
+    /** The "request code" for identifying the image selection request */
+    private static final int PICK_IMAGE_REQUEST = 1;
+
     /** These are the EditText fields used to edit the item */
     private EditText mNameEditText;
     private EditText mPriceEditText;
@@ -284,6 +287,17 @@ public class EditorActivity extends AppCompatActivity implements
             // Something went wrong with the deletion
             Toast.makeText(this, R.string.error_item_deleted, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void chooseImage(){
+
+        Intent intent = new Intent();
+        // Only allow the user to see images
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        // Use startActivityForResult() instead of startActivity() because we want to get
+        // a result back from the activity (the image URI)
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
     @Override
