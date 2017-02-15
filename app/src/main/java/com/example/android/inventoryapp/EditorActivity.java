@@ -244,7 +244,9 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(InventoryContract.InventoryEntry.COLUMN_NAME_NAME, name);
         values.put(InventoryContract.InventoryEntry.COLUMN_NAME_STOCK, stock);
         values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, price);
-
+        if (mCurrentItemImageUri != null) {
+            values.put(InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE, mCurrentItemImageUri.toString());
+        }
         if (mCurrentItemUri == null) {
             // User is creating a new item
             getContentResolver().insert(InventoryContract.InventoryEntry.CONTENT_URI,
@@ -354,19 +356,11 @@ public class EditorActivity extends AppCompatActivity implements
     }
 
     /**
-     * Set a selected image to the image view in the editor and place the URI string into the
-     * database.
+     * Set a selected image to the image view in the editor
      */
     private void setSelectedImageToItem() {
-        ContentValues values = new ContentValues();
-        values.put(InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE,
-                mCurrentItemImageUri.toString());
 
-        int rowsAffected = getApplicationContext().getContentResolver().update(mCurrentItemUri,
-                values, null, null);
-
-        Log.v("Editor", "Image now in database!" + mCurrentItemImageUri);
-
+        // Set the image from the content URI
         mItemImage.setImageBitmap(getBitmapFromUri(mCurrentItemImageUri));
 
         // Now hide the "Select an image" text
