@@ -28,6 +28,13 @@ import com.example.android.inventoryapp.data.InventoryCursorAdapter;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * This project created by Andrew Osborne
+ *
+ * This project makes use of the Glide project
+ * which can be found at: https://github.com/bumptech/glide
+ */
+
 public class InventoryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     /** Used for log tags */
