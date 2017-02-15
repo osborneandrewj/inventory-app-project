@@ -122,14 +122,16 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         return super.onOptionsItemSelected(item);
     }
 
-    // TODO: Delete this method before submission
+    // TODO: Delete this method before publishing.
+    /**
+     * Generate a fake database item and insert it into the database table
+     *
+     * Testing purposes only!
+     */
     private void insertData() {
         // *************************************delete this section*********************************
         // Generate a random number between 1 and 5
         int randomNumber = 1 + (int)(Math.random() * ((5-1) + 1));
-        Log.v(LOG_TAG, "Random number: " + randomNumber);
-        // ***********************
-        // Create a new ContentValues object
         ContentValues values = new ContentValues();
 
         switch (randomNumber) {
@@ -159,14 +161,18 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
                 values.put(InventoryContract.InventoryEntry.COLUMN_NAME_PRICE, 550);
                 break;
         }
-        //******************************************************************************************
-
         // Defines a new Uri object that will receive the result of insertion
         Uri mNewUri = getContentResolver().insert(
                 InventoryContract.InventoryEntry.CONTENT_URI, values);
+        //******************************************************************************************
     }
 
-    // TODO: Delete this method before submission
+    // TODO: Delete this method before publishing
+    /**
+     * Delete the entire database table
+     *
+     * Testing purposes only!
+     */
     private void deleteTable() {
         // Defines a new int that will receive the result of the deletion
         int rowsDeleted = getContentResolver().delete(

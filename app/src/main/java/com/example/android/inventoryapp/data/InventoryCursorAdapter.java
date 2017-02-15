@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 import com.example.android.inventoryapp.R;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -83,7 +85,8 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
         // Set the thumbnail image
         if (imageString != null) {
-            holder.thumbnailView.setImageURI(Uri.parse(imageString));
+            //older.thumbnailView.setImageURI(Uri.parse(imageString));
+            Glide.with(context).load(Uri.parse(imageString)).into(holder.thumbnailView);
         }
 
         // Create a button to "sell" an item (decrease the stock level)

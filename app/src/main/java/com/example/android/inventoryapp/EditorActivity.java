@@ -137,7 +137,6 @@ public class EditorActivity extends AppCompatActivity implements
         mSelectImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.v("Editor", "Image clicked!!!!!!!!!!!!!!");
                 chooseImage();
             }
         });
@@ -334,10 +333,6 @@ public class EditorActivity extends AppCompatActivity implements
      */
     private void chooseImage(){
 
-        // Verify that we have the correct permissions
-        // TODO: Is this needed?
-        verifyStoragePermissions(this);
-
         // Build the intent
         Intent intent = new Intent();
         // For API level 19+ we need to allow persistable URI permissions
@@ -358,6 +353,10 @@ public class EditorActivity extends AppCompatActivity implements
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
+    /**
+     * Set a selected image to the image view in the editor and place the URI string into the
+     * database.
+     */
     private void setSelectedImageToItem() {
         ContentValues values = new ContentValues();
         values.put(InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE,
@@ -369,21 +368,10 @@ public class EditorActivity extends AppCompatActivity implements
         Log.v("Editor", "Image now in database!" + mCurrentItemImageUri);
 
         mItemImage.setImageBitmap(getBitmapFromUri(mCurrentItemImageUri));
-    }
 
-    private static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission, so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
+        // Now hide the "Select an image" text
+        TextView selectPrompt = (TextView)findViewById(R.id.select_an_image_text);
+        selectPrompt.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -523,7 +511,6 @@ public class EditorActivity extends AppCompatActivity implements
                     InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE)) != null) {
                 mCurrentItemImageUri = Uri.parse(cursor.getString(cursor.getColumnIndexOrThrow(
                         InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE)));
-                Log.v(LOG_TAG, "Uri: " + mCurrentItemImageUri);
                 mItemImage = (ImageView)findViewById(R.id.item_image);
                 mItemImage.setImageBitmap(getBitmapFromUri(mCurrentItemImageUri));
             }
