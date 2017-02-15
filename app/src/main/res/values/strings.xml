@@ -4,6 +4,20 @@
     <string name="title_editor_add">Add Inventory Item</string>
     <string name="title_editor_edit">Edit Item</string>
 
+    <!--Edit Activity-->
+    <string name="section_title_edit_item">Edit item</string>
+    <string name="section_title_stock">Stock</string>
+    <string name="section_title_supplier">Supplier</string>
+    <string name="button_text_order">order</string>
+    <string name="image_select_prompt">Select an image</string>
+    <string name="hint_text_name">Enter name</string>
+    <string name="hint_text_price">Enter price</string>
+    <string name="image_description">item image</string>
+
+    <!--List item-->
+    <string name="button_text_sell">sell</string>
+
+
     <string name="item_saved_success">Item saved!</string>
     <string name="item_deleted_success">Item deleted</string>
 

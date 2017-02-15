@@ -1,10 +1,17 @@
 package com.example.android.inventoryapp;
 
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -18,17 +25,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Locale;
 
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+    /** Used for logging messages */
+    private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
     /** Used to set the item price */
     private static final int PRICE_CONVERSION_FACTOR = 100;
@@ -36,34 +48,40 @@ public class EditorActivity extends AppCompatActivity implements
     /** URI information about the current item */
     private Uri mCurrentItemUri;
 
+    /** URI for the item image */
+    private Uri mCurrentItemImageUri;
+
+    /** Used to setting image dimensions */
+    private static final int STANDARD_IMAGE_DIMENSION = 500;
+
     /** The "request code" for identifying the image selection request */
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    /** These are the EditText fields used to edit the item */
+    /** Used for getting permissions */
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    /** These are the fields used to edit the item */
     private EditText mNameEditText;
     private EditText mPriceEditText;
     private TextView mStockLevelText;
+    private View mSelectImageView;
+    private ImageView mItemImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        // Get the item URI from the intent, if URI exists
-        mCurrentItemUri = getIntent().getData();
 
-        // Set the title for this activity based on whether or not the user
-        // is creating an inventory item or editing an existing one
-        if (mCurrentItemUri == null) {
-            setTitle(R.string.title_editor_add);
-        } else {
-            setTitle(R.string.title_editor_edit);
-            getSupportLoaderManager().initLoader(0, null, this);
-        }
 
         mNameEditText = (EditText)findViewById(R.id.item_name);
         mPriceEditText = (EditText)findViewById(R.id.item_price);
         mStockLevelText = (TextView)findViewById(R.id.stock_level_text);
+        mItemImage = (ImageView)findViewById(R.id.item_image);
 
         // Button to increase the stock level of an item
         Button increaseStockButton = (Button)findViewById(R.id.button_increase);
@@ -113,6 +131,28 @@ public class EditorActivity extends AppCompatActivity implements
                 }
             }
         });
+
+        // Button to select an image to display
+        mSelectImageView = findViewById(R.id.select_image_view);
+        mSelectImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.v("Editor", "Image clicked!!!!!!!!!!!!!!");
+                chooseImage();
+            }
+        });
+
+        // Get the item URI from the intent, if URI exists
+        mCurrentItemUri = getIntent().getData();
+
+        // Set the title for this activity based on whether or not the user
+        // is creating an inventory item or editing an existing one
+        if (mCurrentItemUri == null) {
+            setTitle(R.string.title_editor_add);
+        } else {
+            setTitle(R.string.title_editor_edit);
+            getSupportLoaderManager().initLoader(0, null, this);
+        }
     }
 
     @Override
@@ -289,16 +329,151 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Open an image gallery with correct permissions and allow user to select and image
+     */
     private void chooseImage(){
 
+        // Verify that we have the correct permissions
+        // TODO: Is this needed?
+        verifyStoragePermissions(this);
+
+        // Build the intent
         Intent intent = new Intent();
+        // For API level 19+ we need to allow persistable URI permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        } else {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        }
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         // Only allow the user to see images
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+
         // Use startActivityForResult() instead of startActivity() because we want to get
         // a result back from the activity (the image URI)
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
+
+    private void setSelectedImageToItem() {
+        ContentValues values = new ContentValues();
+        values.put(InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE,
+                mCurrentItemImageUri.toString());
+
+        int rowsAffected = getApplicationContext().getContentResolver().update(mCurrentItemUri,
+                values, null, null);
+
+        Log.v("Editor", "Image now in database!" + mCurrentItemImageUri);
+
+        mItemImage.setImageBitmap(getBitmapFromUri(mCurrentItemImageUri));
+    }
+
+    private static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission, so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
+    /**
+     * Get a bitmap image from provided URI
+     *
+     * Note: This method is from: https://github.com/crlsndrsjmnz
+     */
+    public Bitmap getBitmapFromUri(Uri uri) {
+
+        if (uri == null || uri.toString().isEmpty())
+            return null;
+
+        // Get the dimensions of the View
+        int targetW = mSelectImageView.getWidth();
+        if (targetW == 0) {
+            targetW = STANDARD_IMAGE_DIMENSION; // Do not allow this value to be 0
+        }
+        int targetH = mSelectImageView.getHeight();
+        if (targetH == 0) {
+            targetH = STANDARD_IMAGE_DIMENSION; // Do not allow this value to be 0
+        }
+
+        InputStream input = null;
+        try {
+            input = this.getContentResolver().openInputStream(uri);
+
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+            Log.v(LOG_TAG, "targets: " + targetW + " " + targetH + " "
+            + photoW + " " + photoH);
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+            Log.v(LOG_TAG, "scaleFactor: " + scaleFactor);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+
+            input = this.getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+            return bitmap;
+
+        } catch (FileNotFoundException fne) {
+            Log.e(LOG_TAG, "Failed to load image.", fne);
+            return null;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ioe) {
+
+            }
+        }
+    }
+
+    /**
+     * Capture the user selected image URI
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we are responding to:
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            // Check that the request was successful
+            if (resultCode == RESULT_OK) {
+
+                mCurrentItemImageUri = data.getData();
+                // Set persistent permission for this URI
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    final int takeFlags = data.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                    ContentResolver resolver = this.getContentResolver();
+                    resolver.takePersistableUriPermission(mCurrentItemImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+                // If the request was successful, store the URI in the database
+                setSelectedImageToItem();
+            }
+        }
+    }
+
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -308,7 +483,8 @@ public class EditorActivity extends AppCompatActivity implements
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_NAME_NAME,
                 InventoryContract.InventoryEntry.COLUMN_NAME_PRICE,
-                InventoryContract.InventoryEntry.COLUMN_NAME_STOCK};
+                InventoryContract.InventoryEntry.COLUMN_NAME_STOCK,
+                InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE};
 
         return new CursorLoader(getApplicationContext(),
                 mCurrentItemUri,
@@ -341,6 +517,16 @@ public class EditorActivity extends AppCompatActivity implements
             // Set the stock level TextView
             mStockLevelText.setText(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(
                     InventoryContract.InventoryEntry.COLUMN_NAME_STOCK))));
+
+            // Set the image if a uri is stored in the database
+            if (cursor.getString(cursor.getColumnIndexOrThrow(
+                    InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE)) != null) {
+                mCurrentItemImageUri = Uri.parse(cursor.getString(cursor.getColumnIndexOrThrow(
+                        InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE)));
+                Log.v(LOG_TAG, "Uri: " + mCurrentItemImageUri);
+                mItemImage = (ImageView)findViewById(R.id.item_image);
+                mItemImage.setImageBitmap(getBitmapFromUri(mCurrentItemImageUri));
+            }
         }
     }
 

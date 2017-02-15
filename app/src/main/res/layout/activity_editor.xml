@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:paddingTop="10dp"
-            android:text="Edit Item"
+            android:text="@string/section_title_edit_item"
             tools:text="Item Name" />
 
         <LinearLayout
@@ -33,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
-                android:hint="Enter name"
+                android:hint="@string/hint_text_name"
                 android:inputType="textCapWords"
                 android:textAppearance="?android:textAppearanceLarge"
                 android:textColor="@color/colorPrimaryText" />
@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
-                android:hint="Enter price"
+                android:hint="@string/hint_text_price"
                 android:inputType="numberDecimal"
                 android:textAppearance="?android:textAppearanceLarge"
                 android:textColor="@color/colorPrimaryText" />
@@ -61,31 +61,31 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
-            android:text="Stock"
+            android:text="@string/section_title_stock"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorAccent" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:layout_weight="2"
+            android:gravity="center_horizontal"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/button_decrease"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="80dp"
                 android:layout_gravity="start"
+                android:layout_weight="1"
                 android:text="-"
                 android:textAppearance="?android:textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/stock_level_text"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
@@ -95,8 +95,8 @@
             <Button
                 android:id="@+id/button_increase"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="80dp"
+                android:layout_weight="1"
                 android:text="+"
                 android:textAppearance="?android:textAppearanceLarge" />
 
@@ -108,51 +108,54 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="32dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="32dp">
 
         <TextView
             style="@style/LabelStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:paddingTop="10dp"
-            android:text="Supplier"
-            />
+            android:text="@string/section_title_supplier" />
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_weight="2">
 
             <Button
                 android:id="@+id/button_order"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
-                android:text="Order"/>
+                android:text="@string/button_text_order" />
 
         </LinearLayout>
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:id="@+id/select_image_view"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:clickable="true">
 
         <ImageView
-            android:layout_centerInParent="true"
+            android:id="@+id/item_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/box_select_image"/>
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/image_description"
+            android:src="@drawable/box_select_image" />
 
         <TextView
+            android:id="@+id/select_an_image_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:fontFamily="sans-serif"
+            android:text="@string/image_select_prompt"
             android:textAppearance="?android:textAppearanceLarge"
-            android:text="Select an image"
-            android:textColor="@color/colorSecondaryText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:textColor="@color/colorSecondaryText" />
 
     </RelativeLayout>
 

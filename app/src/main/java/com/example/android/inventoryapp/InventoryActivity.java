@@ -1,13 +1,16 @@
 package com.example.android.inventoryapp;
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -33,6 +36,12 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
     private static final int UNIQUE_ID_FOR_LOADER = 0;
     /** The adapter used to display the inventory list */
     private InventoryCursorAdapter mCursorAdapter;
+    /** Used for getting permissions */
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,8 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         setContentView(R.layout.activity_inventory);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        verifyStoragePermissions(this);
 
         // Create a floating action button (fab) that the user clicks
         // to create a new inventory item
@@ -83,15 +94,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
 
         // Prepare the loader
         getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
-
-        // TODO: Delete this
-        Snackbar.make(listView, "Welcome to my app!", Snackbar.LENGTH_LONG)
-                .setAction("Go!", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //nothing
-                    }
-                }).show();
     }
 
     @Override
@@ -109,8 +111,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings:
-                return true;
             case R.id.action_insert_data:
                 insertData();
                 return true;
@@ -122,6 +122,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         return super.onOptionsItemSelected(item);
     }
 
+    // TODO: Delete this method before submission
     private void insertData() {
         // *************************************delete this section*********************************
         // Generate a random number between 1 and 5
@@ -165,10 +166,26 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
                 InventoryContract.InventoryEntry.CONTENT_URI, values);
     }
 
+    // TODO: Delete this method before submission
     private void deleteTable() {
         // Defines a new int that will receive the result of the deletion
         int rowsDeleted = getContentResolver().delete(
                 InventoryContract.InventoryEntry.CONTENT_URI, null, null);
+    }
+
+    private static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission, so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 
     @Override
@@ -178,7 +195,8 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_NAME_NAME,
                 InventoryContract.InventoryEntry.COLUMN_NAME_PRICE,
-                InventoryContract.InventoryEntry.COLUMN_NAME_STOCK};
+                InventoryContract.InventoryEntry.COLUMN_NAME_STOCK,
+                InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE};
 
         return new CursorLoader(getApplicationContext(),
                 InventoryContract.InventoryEntry.CONTENT_URI,

@@ -5,17 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.android.inventoryapp.R;
-
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -31,62 +28,72 @@ public class InventoryCursorAdapter extends CursorAdapter {
     private static final int PRICE_CONVERSION_FACTOR = 100;
     /** Used to decrement an item's stock level when the "sell" button is clicked */
     private static final int SELL_ONE_ITEM = 1;
+    /** Used to logging errors */
+    private static final String LOG_TAG = InventoryCursorAdapter.class.getSimpleName();
 
-
-    /**
-     * Constructs a new InventoryCursorAdapter
-     */
     public InventoryCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
     }
 
-    /**
-     * Makes a new blank list item view. Note: No data is set (or bound) to the views at this point.
-     */
+    private class ViewHolder {
+        TextView nameTextView;
+        TextView priceTextView;
+        TextView stockTextView;
+        ImageView thumbnailView;
+
+        ViewHolder(View view) {
+            nameTextView = (TextView)view.findViewById(R.id.name);
+            priceTextView = (TextView)view.findViewById(R.id.price);
+            stockTextView = (TextView)view.findViewById(R.id.stock);
+            thumbnailView = (ImageView)view.findViewById(R.id.thumbnail_image);
+        }
+    }
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+
         return LayoutInflater.from(context).inflate(R.layout.list_item, viewGroup, false);
     }
 
-    /**
-     * Binds the data to the given list item layout.
-     */
     @Override
     public void bindView(View view, Context context, final Cursor cursor) {
-        // Find fields to populate in the inflated view
-        TextView name = (TextView)view.findViewById(R.id.name);
-        TextView price = (TextView)view.findViewById(R.id.price);
-        TextView stock = (TextView)view.findViewById(R.id.stock);
 
-        // Extract properties from cursor
+        ViewHolder holder = new ViewHolder(view);
+
+        // Extract relevant properties from the database cursor
         String nameString = cursor.getString(cursor.getColumnIndexOrThrow(
                 InventoryContract.InventoryEntry.COLUMN_NAME_NAME));
         int priceInt = cursor.getInt(cursor.getColumnIndexOrThrow(
                 InventoryContract.InventoryEntry.COLUMN_NAME_PRICE));
         int stockLevel = cursor.getInt(cursor.getColumnIndexOrThrow(
                 InventoryContract.InventoryEntry.COLUMN_NAME_STOCK));
+        String imageString = cursor.getString(cursor.getColumnIndexOrThrow(
+                InventoryContract.InventoryEntry.COLUMN_NAME_IMAGE));
 
         // Populate the fields using the extracted data
-        name.setText(nameString);
-        stock.setText(Integer.toString(stockLevel));
-
+        holder.nameTextView.setText(nameString);
+        holder.stockTextView.setText(Integer.toString(stockLevel));
 
         // Convert the price int stored in the database into the currency format for display
         // The int was multiplied by 100 when it was entered to store it as cents,
         // so we undo this operation here
         double priceDouble = (double) priceInt / PRICE_CONVERSION_FACTOR;
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        price.setText(currencyFormatter.format(priceDouble));
+        holder.priceTextView.setText(currencyFormatter.format(priceDouble));
 
-        // Create a button to "sell" an item (decrease the stock level)*****************************
+        // Set the thumbnail image
+        if (imageString != null) {
+            holder.thumbnailView.setImageURI(Uri.parse(imageString));
+        }
 
-        // Get the item's position
+        // Create a button to "sell" an item (decrease the stock level)
+        // First, get the item's position
         int CURRENT_ROW_ID = cursor.getInt(cursor.getColumnIndexOrThrow(
                 InventoryContract.InventoryEntry._ID));
         // Get the current item's URI
         final Uri CURRENT_ROW_URI = ContentUris.withAppendedId(
                 InventoryContract.InventoryEntry.CONTENT_URI, ((long) CURRENT_ROW_ID));
-        // Decrease the current item's stock level by 1
+        // This int is 1 less than the current stock level
         final int newStockLevel = stockLevel - SELL_ONE_ITEM;
 
         // Get a reference to the "sell" button and set the click listener
@@ -109,7 +116,5 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
             }
         });
-
-        // ****** end button ***********************************************************************
     }
 }

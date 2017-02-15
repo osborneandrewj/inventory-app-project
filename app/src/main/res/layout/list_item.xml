@@ -8,10 +8,11 @@
     android:paddingRight="8dp">
 
     <ImageView
+        android:id="@+id/thumbnail_image"
         android:layout_width="75dp"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_insert_photo_black_24dp"
-        android:tint="@color/colorSecondaryText" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/box_select_image" />
 
     <TextView
         android:id="@+id/stock"
@@ -34,8 +35,9 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
+            android:fontFamily="sans-serif"
             android:paddingBottom="0dp"
+            android:textAppearance="?android:textAppearanceLarge"
             android:textColor="@color/colorPrimaryText"
             android:textSize="18sp"
             tools:text="Name" />
@@ -59,8 +61,8 @@
             android:id="@+id/button_sell"
             android:layout_width="75dp"
             android:layout_height="match_parent"
-            android:text="sell"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:text="@string/button_text_sell" />
     </LinearLayout>
 
 
